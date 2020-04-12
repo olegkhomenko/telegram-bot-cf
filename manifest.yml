@@ -1,0 +1,4 @@
+---
+applications:
+- name: tg-bot-cf
+  memory: 128M
