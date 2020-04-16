@@ -3,23 +3,30 @@ import logging
 import os
 
 import telebot
+from telebot import apihelper
 from flask import Flask, request
 
 import constants as C
 
-vcap_application = json.loads(os.environ['VCAP_APPLICATION'])
 
 TOKEN = os.environ['TG_API_TOKEN']
 WEBHOOK_URI = getattr(C, 'WEBHOOK_URI', None)
-if WEBHOOK_URI is None:
+DEBUG = os.environ.get('DEBUG', False)
+
+if WEBHOOK_URI is None and not DEBUG:
+    vcap_application = json.loads(os.environ['VCAP_APPLICATION'])
     WEBHOOK_URI = vcap_application['uris'][0]
 
-log = logging.getLogger()
+
+log = telebot.logger
 server = Flask(__name__)
+apihelper.proxy = {'https': C.PROXY, 'http': C.PROXY}
 bot = telebot.TeleBot(TOKEN)
 
-log.info(bot.get_me())
+if DEBUG:
+    telebot.logger.setLevel(logging.DEBUG)
 
+log.info(bot.get_me())
 
 @bot.message_handler(commands=['help', 'start'])
 def send_welcome(message):
@@ -45,4 +52,8 @@ def webhook():
 
 
 if __name__ == '__main__':
-    server.run(host=C.HOST, port=int(os.environ.get('PORT', C.PORT)))
+    if not DEBUG:
+        server.run(host=C.HOST, port=int(os.environ.get('PORT', C.PORT)))
+
+    else:
+        bot.polling()
