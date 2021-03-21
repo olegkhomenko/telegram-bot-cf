@@ -10,7 +10,7 @@ log.setLevel(logging.DEBUG)
 
 if __name__ == "__main__":
     TG_API_TOKEN = os.environ["TG_API_TOKEN"]
-    proxy = getattr(C, 'PROXY', None)
+    proxy = getattr(C, "PROXY", None)
 
     try:
         requests.get(C.ENDPOINT, timeout=1)
@@ -21,13 +21,14 @@ if __name__ == "__main__":
 
     if not endpoint_is_reachable and proxy:
         log.warning(f"Trying to use proxy: {proxy}")
-        response = requests.get(C.ENDPOINT, timeout=10, proxies={'https': proxy})
+        response = requests.get(C.ENDPOINT, timeout=10, proxies={"https": proxy})
         if response.ok:
             endpoint_is_reachable = True
 
     if endpoint_is_reachable:
-        response = requests.get(f'https://api.telegram.org/bot{TG_API_TOKEN}/setWebhook', timeout=10,
-                                proxies={'https': proxy})
+        response = requests.get(
+            f"https://api.telegram.org/bot{TG_API_TOKEN}/setWebhook", timeout=10, proxies={"https": proxy}
+        )
         if response.ok:
             log.warning("200 OK")
 
