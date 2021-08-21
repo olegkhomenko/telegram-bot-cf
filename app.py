@@ -3,13 +3,17 @@ import logging
 import os
 
 import telebot
-from telebot import apihelper
+# from telebot import apihelper
 from flask import Flask, request
 
 import constants as C
 
 
-TOKEN = os.environ["TG_API_TOKEN"]
+TOKEN = os.environ.get("TG_API_TOKEN", None)
+if TOKEN is None:
+    with open("tg_token.txt") as fin:
+        TOKEN = fin.readline().replace("\n", "")
+
 WEBHOOK_URI = getattr(C, "WEBHOOK_URI", None)
 DEBUG = os.environ.get("DEBUG", False)
 
@@ -20,7 +24,7 @@ if WEBHOOK_URI is None and not DEBUG:
 
 log = telebot.logger
 server = Flask(__name__)
-apihelper.proxy = {"https": C.PROXY, "http": C.PROXY}
+# apihelper.proxy = {"https": C.PROXY, "http": C.PROXY}
 bot = telebot.TeleBot(TOKEN)
 
 if DEBUG:
